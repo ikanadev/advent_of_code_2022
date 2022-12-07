@@ -85,6 +85,24 @@ fn part1(stacks: &mut Vec<Stack>, changes: &Vec<Change>) {
     }
     println!("Part1: {}", str);
 }
+fn part2(stacks: &mut Vec<Stack>, changes: &Vec<Change>) {
+    for change in changes {
+        let mut changes: Vec<char> = Vec::new();
+        for _ in 0..change.count {
+            let char = stacks[change.from as usize].pop();
+            changes.push(char);
+        }
+        changes.reverse();
+        for char in changes {
+            stacks[change.to as usize].add(char);
+        }
+    }
+    let mut str = String::new();
+    for stack in stacks {
+        str.push(stack.check());
+    }
+    println!("Part2: {}", str);
+}
 
 fn main() {
     // let file = File::open("input_small").unwrap();
@@ -106,8 +124,10 @@ fn main() {
             change_lines.push(line);
         }
     }
-    let mut stacks = parse_stacks(stack_lines);
+    let mut stacks_p1 = parse_stacks(stack_lines.clone());
+    let mut stacks_p2 = parse_stacks(stack_lines.clone());
     let changes = parse_changes(change_lines);
 
-    part1(&mut stacks, &changes);
+    part1(&mut stacks_p1, &changes);
+    part2(&mut stacks_p2, &changes);
 }
