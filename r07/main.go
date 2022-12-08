@@ -4,13 +4,14 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
 
 type File struct {
 	name string
-	size uint64
+	size int64
 }
 type Dir struct {
 	name   string
@@ -72,8 +73,8 @@ func (self Dir) print() {
 	}
 	fmt.Print("\n}\n")
 }
-func (self Dir) getSize() uint64 {
-	var size uint64 = 0
+func (self Dir) getSize() int64 {
+	var size int64 = 0
 	for _, file := range self.files {
 		size += file.size
 	}
@@ -84,7 +85,7 @@ func (self Dir) getSize() uint64 {
 }
 
 func (self Dir) sumUnder100K() {
-	var sum uint64 = 0
+	var sum int64 = 0
 	dirsToCheck := self.dirs
 
 	for len(dirsToCheck) > 0 {
@@ -100,6 +101,34 @@ func (self Dir) sumUnder100K() {
 		}
 	}
 	fmt.Println("Part1: ", sum)
+}
+func (self Dir) dirToDelete() {
+	dirsToCheck := self.dirs
+	var totalSizes []int64 = []int64{}
+
+	for len(dirsToCheck) > 0 {
+		dirs := make([]*Dir, len(dirsToCheck))
+		copy(dirs, dirsToCheck)
+		dirsToCheck = []*Dir{}
+		for _, dir := range dirs {
+			dirSize := dir.getSize()
+			totalSizes = append(totalSizes, dirSize)
+			dirsToCheck = append(dirsToCheck, dir.dirs...)
+		}
+	}
+
+	sort.Slice(totalSizes, func(i, j int) bool {
+		return totalSizes[i] < totalSizes[j]
+	})
+	usedSpace := self.getSize()
+	var diskSize int64 = 70000000
+	var updateSize int64 = 30000000
+	for _, size := range totalSizes {
+		if (diskSize-updateSize)-(usedSpace-size) >= 0 {
+			fmt.Println("Part2: ", size)
+			break
+		}
+	}
 }
 
 func main() {
@@ -132,7 +161,7 @@ func main() {
 			if line[0] == "dir" {
 				mainDir.addDir2(line[1])
 			} else {
-				size, _ := strconv.ParseUint(line[0], 10, 64)
+				size, _ := strconv.ParseInt(line[0], 10, 64)
 				mainDir.addFile(File{name: line[1], size: size})
 			}
 		}
@@ -140,4 +169,5 @@ func main() {
 	mainDir = mainDir.cd("/")
 	// mainDir.print()
 	mainDir.sumUnder100K()
+	mainDir.dirToDelete()
 }
