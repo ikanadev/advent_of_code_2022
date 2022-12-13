@@ -103,6 +103,7 @@ fn part_1(mut monkeys: Vec<Monkey>) {
 }
 
 fn part_2(mut monkeys: Vec<Monkey>) {
+    // WIP
     let rounds = 12;
     let mut monkey_items = vec![0; monkeys.len()];
     for _ in 0..rounds {
